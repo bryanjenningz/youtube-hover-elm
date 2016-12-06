@@ -4,21 +4,6 @@ import Html exposing (programWithFlags, text, button, div, h4, i, span, Html)
 import Html.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Html.Attributes exposing (class, style)
 
-type alias TranslationSub =
-  { time : Float
-  , line : List TranslationText
-  }
-
-type alias TranslationText =
-  { text : String
-  , translation : String
-  }
-
-type alias TextTime =
-  { text : String
-  , time : Float
-  }
-
 main =
   programWithFlags
     { init = init 
@@ -61,18 +46,6 @@ view model =
     , viewTranslatedSubs model
     ]
 
-viewText : Int -> Int -> TranslationText -> Html Msg
-viewText hoverIndex index phrase =
-  span [ onMouseEnter (ChangeIndex index) ]
-    [ if hoverIndex == index then
-        span [ style [("position", "relative")] ]
-          [ text (phrase.text ++ " ")
-          , span [style translationStyle] [text phrase.translation] ]
-      else
-        span []
-          [ text (phrase.text ++ " ") ]
-    ]
-
 viewTranslatedSubs : Model -> Html Msg
 viewTranslatedSubs model =
   let
@@ -85,7 +58,7 @@ viewTranslatedSubs model =
         { time = 0, translations = [] }
         (List.head <| List.reverse subsBeforeNow)
   in
-    div [] <|
+    h4 [] <|
       List.indexedMap
         (\index sub ->
           let 
@@ -111,7 +84,6 @@ viewTranslatedSubs model =
         )
         currentSub.translations
 
-
 translationStyle =
   [ ("background", "cyan")
   , ("position", "absolute")
@@ -134,6 +106,11 @@ port youtubeTime : (Float -> msg) -> Sub msg
 subscriptions model =
   youtubeTime UpdateYoutubeTime
 
+type alias TextTime =
+  { text : String
+  , time : Float
+  }
+
 getCurrentTextTime : List TextTime -> Float -> TextTime
 getCurrentTextTime subs time =
   List.foldl
@@ -141,6 +118,7 @@ getCurrentTextTime subs time =
     (Maybe.withDefault (TextTime "" 0) <| List.head subs)
     subs
 
+englishSubs : List TextTime
 englishSubs =
   [ { time = 0, text = "Today..." }
   , { time = 4.7, text = "I will be reborn" }
@@ -213,111 +191,4 @@ englishSubs =
   , { time = 220.1, text = "This is so cautious" }
   , { time = 221.2, text = "I'm not being cautious!" }
   , { time = 222.7, text = "Feeling shy suddenly..." }
-  ]
-
-japaneseSubs =
-  [ { time = 0, text = "私は今日" }
-  , { time = 4.8, text = "生まれ変わる" }
-  , { time = 6.2, text = "こんなに朝早く起きて" }
-  , { time = 7.5, text = "東京に行くのには理由がある。" }
-  , { time = 12.7, text = "今日もひどい前髪だ" }
-  , { time = 14.4, text = "下駄を履いている" }
-  , { time = 15.5, text = "ひどい睡魔とともに私は" }
-  , { time = 16.9, text = "お土産屋さんでお土産を購入した。" }
-  , { time = 18.5, text = "そのまま新幹線乗り場に向かい" }
-  , { time = 20.2, text = "新幹線に乗る。" }
-  , { time = 21.5, text = "席に座った瞬間…" }
-  , { time = 22.8, text = "すぐ寝る。" }
-  , { time = 24.4, text = "私が向かう先はただ一つ" }
-  , { time = 25.9, text = "伝説の美容室" }
-  , { time = 28.7, text = "この荒れ果てた髪型を修繕すべく" }
-  , { time = 30.8, text = "最強の美容師軍団に" }
-  , { time = 32.2, text = "髪の毛カットを依頼することにした。" }
-  , { time = 34.2, text = "生まれ変われ！" }
-  , { time = 35.2, text = "俺の！" }
-  , { time = 35.8, text = "魂！" }
-  , { time = 37.8, text = "いやほんと、なんとかして下さいちょっと" }
-  , { time = 40, text = "あ、何か" }
-  , { time = 40.5, text = "カウンセリング資格もいいすかね（？）" }
-  , { time = 41.9, text = "あっカウンセリングですか？" }
-  , { time = 42.7, text = "あっもう" }
-  , { time = 43.2, text = "＄＃＠％" }
-  , { time = 43.9, text = "シャンプー行きましょ" }
-  , { time = 44.7, text = "えっもるさんがすんの？" }
-  , { time = 45.9, text = "はい" }
-  , { time = 46.4, text = "わっやべぇ緊張する" }
-  , { time = 47.1, text = "めっちゃ久しぶりっすね" }
-  , { time = 48, text = "いやぁもるさん久しぶりだねぇ" }
-  , { time = 49, text = "＄＃＠％" }
-  , { time = 49.5, text = "これずっと回してるんすか？" }
-  , { time = 50.3, text = "うんｗずっと回してるｗ" }
-  , { time = 62.1, text = "あ〜やべ" }
-  , { time = 62.7, text = "シャンプーしていきます" }
-  , { time = 63.3, text = "よろしくお願いします。" }
-  , { time = 64, text = "お願いします。" }
-  , { time = 67.2, text = "起こしていきます。" }
-  , { time = 67.9, text = "ありがとうございます。" }
-  , { time = 71, text = "どんな感じにしたいとかありますか？" }
-  , { time = 73.1, text = "えーと、ひとまず〜" }
-  , { time = 74.3, text = "前髪をなんとかしたいという" }
-  , { time = 75.8, text = "色は明るい方がいい暗い方がいいありますか？" }
-  , { time = 78.3, text = "迷ってるんですよ〜" }
-  , { time = 79.6, text = "明るいほうが良いのかなー？" }
-  , { time = 81.4, text = "お願いします。" }
-  , { time = 81.9, text = "はい　よろしくお願いします。" }
-  , { time = 86.6, text = "切るのも久々な感じですね" }
-  , { time = 88.5, text = "久々ですね〜" }
-  , { time = 91.5, text = "あぁ！すみません" }
-  , { time = 92, text = "＄＃＠％" }
-  , { time = 92.5, text = "前髪以外は久しぶりです…" }
-  , { time = 93.5, text = "前髪…これは…" }
-  , { time = 94.3, text = "動画で持ってかれて…" }
-  , { time = 98.2, text = "結構伸びた方ですよでも" }
-  , { time = 99.9, text = "ここ激軽(?)ですね" }
-  , { time = 103.5, text = "もうっ　あの" }
-  , { time = 104.6, text = "世界一のイケメンにして下さい" }
-  , { time = 109, text = "前髪すごいやばいっすね" }
-  , { time = 112.8, text = "あぁ　これは、" }
-  , { time = 113.7, text = "やばいなぁ" }
-  , { time = 114.2, text = "揃ってるのが多分よろしくないですよね" }
-  , { time = 116.1, text = "幅も全然違うんで" }
-  , { time = 117.4, text = "結構やばめです" }
-  , { time = 121.1, text = "お気の向くままに" }
-  , { time = 139.6, text = "うわ！うわうわ" }
-  , { time = 140.6, text = "ヤンキーヤンキーヤンキー" }
-  , { time = 142.2, text = "ヤンキーヤンキーｗ" }
-  , { time = 144.4, text = "うわー" }
-  , { time = 145, text = "僕、去年金髪だったんでしばらく" }
-  , { time = 147, text = "うわー懐いなーこれくらいだったなー確か" }
-  , { time = 157.4, text = "就寝です" }
-  , { time = 168, text = "おー！ありがとうございます！" }
-  , { time = 169.8, text = "すごい！前髪がなくてもここまで人は…" }
-  , { time = 172.4, text = "進化できるんですね！" }
-  , { time = 173.5, text = "おおー！" }
-  , { time = 174.3, text = "おおー！" }
-  , { time = 175, text = "な、何色？" }
-  , { time = 175.6, text = "ピンクっぽい" }
-  , { time = 178.2, text = "緊張されてると逆にやりずらいっていうｗ" }
-  , { time = 180.1, text = "緊張しますよ！もう(照)" }
-  , { time = 184.1, text = "結構バッサリ短くしました。" }
-  , { time = 185.9, text = "ありがとうございます！お疲れ様でした。" }
-  , { time = 191.9, text = "はい！どうも〜" }
-  , { time = 193.6, text = "というわけでですねえっと〜" }
-  , { time = 194.8, text = "とんでもねえ髪型を" }
-  , { time = 196.5, text = "無事なんとか" }
-  , { time = 197.7, text = "かなり！" }
-  , { time = 198.7, text = "カッコよくさせていただきました" }
-  , { time = 199.8, text = "本当に今日はありがとうございました。" }
-  , { time = 201.5, text = "どうでしたかこの前髪は" }
-  , { time = 202.8, text = "いやぁ 難しかったねぇ" }
-  , { time = 204.2, text = "まぁ ぜひ伸ばして下さい。" }
-  , { time = 205.3, text = "頑張ります。" }
-  , { time = 206, text = "この機会に是非みなさん" }
-  , { time = 207.3, text = "OCEAN TOKYO Harajuku 遊びに来て下さい。" }
-  , { time = 209.4, text = "是非！是非！" }
-  , { time = 209.9, text = "是非！" }
-  , { time = 210.4, text = "お待ちしてます！" }
-  , { time = 217, text = "あれ？" }
-  , { time = 220.4, text = "もう使う気ですねこれ" }
-  , { time = 221.5, text = "いやっ使わないっす" }
   ]
