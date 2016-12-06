@@ -124,12 +124,13 @@ viewTranslatedSubs model =
           in
             span
               [ onMouseEnter (ChangeIndex index), style [ ( "position", "relative" ) ] ]
-              [ text sub.word
-              , if model.hoverIndex == index then
-                  span [ style translationStyle ] [ text subTranslation ]
-                else
-                  span [] []
-              ]
+              ( [ text sub.word ] ++
+                ( if model.hoverIndex == index && String.length subTranslation > 0 then
+                    [ span [ style translationStyle ] [ text subTranslation ] ]
+                  else
+                    []
+                )
+              )
         )
         currentSub.translations
 
