@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Html exposing (programWithFlags, text, button, div, h4, i, span, Html)
-import Html.Events exposing (onClick, onMouseEnter)
+import Html.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Html.Attributes exposing (class, style)
 
 type alias TranslationSub =
@@ -73,7 +73,6 @@ viewText hoverIndex index phrase =
           [ text (phrase.text ++ " ") ]
     ]
 
---viewTranslatedSubs : List { time : Float, translations : List { word : String, translation : Maybe (List String) } } -> Float -> Html Msg
 viewTranslatedSubs : Model -> Html Msg
 viewTranslatedSubs model =
   let
@@ -96,7 +95,10 @@ viewTranslatedSubs model =
               Maybe.withDefault "" (List.head subTranslations)
           in
             span
-              [ onMouseEnter (ChangeIndex index), style [ ( "position", "relative" ) ] ]
+              [ onMouseEnter (ChangeIndex index)
+              , onMouseLeave (ChangeIndex -1)
+              , style [ ( "position", "relative" ) ]
+              ]
               ( [ text sub.word ] ++
                 ( if model.hoverIndex == index && String.length subTranslation > 0 then
                     [ span [ style translationStyle ] [ text subTranslation ] ]
