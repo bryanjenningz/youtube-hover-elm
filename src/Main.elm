@@ -1,6 +1,6 @@
 port module Main exposing (..)
 
-import Html exposing (program, text, button, div, h4, i, span, Html)
+import Html exposing (programWithFlags, text, button, div, h4, i, span, Html)
 import Html.Events exposing (onClick, onMouseEnter)
 import Html.Attributes exposing (class, style)
 
@@ -42,7 +42,7 @@ japaneseText =
   ]
 
 main =
-  program
+  programWithFlags
     { init = init 
     , view = view
     , update = update
@@ -54,13 +54,33 @@ type Msg = ChangeIndex Int | UpdateYoutubeTime Float
 type alias Model =
   { hoverIndex : Int
   , youtubeTime : Float
+  , translatedSubs : List
+    { time : Float
+    , translations : List
+      { word : String
+      , translation : Maybe (List String)
+      }
+    }
   }
 
-init = ( Model 0 0, Cmd.none )
+type alias Flags =
+  { translatedSubs : List
+    { time : Float
+    , translations : List
+      { word : String
+      , translation : Maybe (List String)
+      }
+    }
+  }
+
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+  ( Model 0 0 flags.translatedSubs, Cmd.none )
 
 view model =
   div [class "text-center"]
-    [ h4 [] [text (getCurrentTextTime englishSubs model.youtubeTime).text]
+    [ viewTranslatedSubs model
+    , h4 [] [text (getCurrentTextTime englishSubs model.youtubeTime).text]
     , h4 [] [text (getCurrentTextTime japaneseSubs model.youtubeTime).text]
     , h4 [] <|
       List.indexedMap
@@ -79,6 +99,40 @@ viewText hoverIndex index phrase =
         span []
           [ text (phrase.text ++ " ") ]
     ]
+
+--viewTranslatedSubs : List { time : Float, translations : List { word : String, translation : Maybe (List String) } } -> Float -> Html Msg
+viewTranslatedSubs : Model -> Html Msg
+viewTranslatedSubs model =
+  let
+    subsBeforeNow =
+      List.filter
+        (\sub -> sub.time <= model.youtubeTime)
+        model.translatedSubs
+    currentSub =
+      Maybe.withDefault
+        { time = 0, translations = [] }
+        (List.head <| List.reverse subsBeforeNow)
+  in
+    div [] <|
+      List.indexedMap
+        (\index sub ->
+          let 
+            subTranslations =
+              Maybe.withDefault [""] sub.translation
+            subTranslation =
+              Maybe.withDefault "" (List.head subTranslations)
+          in
+            span
+              [ onMouseEnter (ChangeIndex index), style [ ( "position", "relative" ) ] ]
+              [ text sub.word
+              , if model.hoverIndex == index then
+                  span [ style translationStyle ] [ text subTranslation ]
+                else
+                  span [] []
+              ]
+        )
+        currentSub.translations
+
 
 translationStyle =
   [ ("background", "cyan")
