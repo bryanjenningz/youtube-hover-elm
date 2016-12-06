@@ -14,31 +14,34 @@ main =
 
 type Msg = ChangeIndex Int | UpdateYoutubeTime Float
 
+type alias TextTime =
+  { text : String
+  , time : Float
+  }
+
+type alias WordTranslation =
+  { word : String
+  , translation : Maybe (List String)
+  }
+
+type alias TimeTranslation =
+  { time : Float
+  , translations : List WordTranslation
+  }
+
 type alias Model =
   { hoverIndex : Int
   , youtubeTime : Float
-  , translatedSubs : List
-    { time : Float
-    , translations : List
-      { word : String
-      , translation : Maybe (List String)
-      }
-    }
+  , timeTranslations : List TimeTranslation
   }
 
 type alias Flags =
-  { translatedSubs : List
-    { time : Float
-    , translations : List
-      { word : String
-      , translation : Maybe (List String)
-      }
-    }
+  { timeTranslations : List TimeTranslation
   }
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-  ( Model -1 0 flags.translatedSubs, Cmd.none )
+  ( Model -1 0 flags.timeTranslations, Cmd.none )
 
 view model =
   div [class "text-center"]
@@ -46,13 +49,20 @@ view model =
     , viewTranslatedSubs model
     ]
 
+getCurrentTextTime : List TextTime -> Float -> TextTime
+getCurrentTextTime subs time =
+  List.foldl
+    (\sub result -> if sub.time > time then result else sub)
+    (Maybe.withDefault (TextTime "" 0) <| List.head subs)
+    subs
+
 viewTranslatedSubs : Model -> Html Msg
 viewTranslatedSubs model =
   let
     subsBeforeNow =
       List.filter
         (\sub -> sub.time <= model.youtubeTime)
-        model.translatedSubs
+        model.timeTranslations
     currentSub =
       Maybe.withDefault
         { time = 0, translations = [] }
@@ -105,18 +115,6 @@ port youtubeTime : (Float -> msg) -> Sub msg
 
 subscriptions model =
   youtubeTime UpdateYoutubeTime
-
-type alias TextTime =
-  { text : String
-  , time : Float
-  }
-
-getCurrentTextTime : List TextTime -> Float -> TextTime
-getCurrentTextTime subs time =
-  List.foldl
-    (\sub result -> if sub.time > time then result else sub)
-    (Maybe.withDefault (TextTime "" 0) <| List.head subs)
-    subs
 
 englishSubs : List TextTime
 englishSubs =
