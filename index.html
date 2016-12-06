@@ -8,10 +8,11 @@
     <div class="text-center"><div id="player"></div></div>
     <div id="main"></div>
     <script src="translated-subs.js"></script>
+    <script src="text-times.js"></script>
     <script src="main.js"></script>
     <script>
       var node = document.querySelector('#main');
-      var app = Elm.Main.embed(node, {timeTranslations: translatedSubs});
+      var app = Elm.Main.embed(node, {timeTranslations: translatedSubs, textTimes: textTimes});
 
       // This code loads the IFrame Player API code asynchronously.
       var tag = document.createElement('script');
