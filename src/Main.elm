@@ -97,7 +97,9 @@ viewTranslatedSubs model =
             span
               [ onMouseEnter (ChangeIndex index)
               , onMouseLeave (ChangeIndex -1)
-              , style [ ( "position", "relative" ) ]
+              , style <|
+                [ ( "position", "relative" ) ] ++
+                (if model.hoverIndex == index then [ ( "background", "cyan" ) ] else [])
               ]
               ( [ text sub.word ] ++
                 ( if model.hoverIndex == index && String.length subTranslation > 0 then
