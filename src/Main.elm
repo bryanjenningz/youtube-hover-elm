@@ -19,28 +19,6 @@ type alias TextTime =
   , time : Float
   }
 
-translationText : List TranslationText
-translationText =
-  [ { text = "Hola.", translation = "Hello" }
-  , { text = "Como estas?", translation = "How are you?" }
-  ]
-
-japaneseText : List TranslationSub
-japaneseText =
-  [ { time = 0
-    , line =
-      [ { text = "私", translation = "I, me" }
-      , { text = "は", translation = "subject particle" }
-      , { text = "今日", translation = "today" }
-      ]
-    }
-  , { time = 4.8
-    , line =
-      [ { text = "生まれ変わる", translation = "I will be reborn" }
-      ]
-    }
-  ]
-
 main =
   programWithFlags
     { init = init 
@@ -75,17 +53,12 @@ type alias Flags =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-  ( Model 0 0 flags.translatedSubs, Cmd.none )
+  ( Model -1 0 flags.translatedSubs, Cmd.none )
 
 view model =
   div [class "text-center"]
-    [ viewTranslatedSubs model
-    , h4 [] [text (getCurrentTextTime englishSubs model.youtubeTime).text]
-    , h4 [] [text (getCurrentTextTime japaneseSubs model.youtubeTime).text]
-    , h4 [] <|
-      List.indexedMap
-        (viewText model.hoverIndex)
-        (getCurrentTranslationSub japaneseText model.youtubeTime).line
+    [ h4 [] [text (getCurrentTextTime englishSubs model.youtubeTime).text]
+    , viewTranslatedSubs model
     ]
 
 viewText : Int -> Int -> TranslationText -> Html Msg
@@ -162,13 +135,6 @@ getCurrentTextTime subs time =
   List.foldl
     (\sub result -> if sub.time > time then result else sub)
     (Maybe.withDefault (TextTime "" 0) <| List.head subs)
-    subs
-
-getCurrentTranslationSub : List TranslationSub -> Float -> TranslationSub
-getCurrentTranslationSub subs time =
-  List.foldl
-    (\sub result -> if sub.time > time then result else sub)
-    (Maybe.withDefault (TranslationSub 0 []) <| List.head subs)
     subs
 
 englishSubs =
