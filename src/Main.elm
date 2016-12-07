@@ -117,10 +117,72 @@ viewTranslatedSubs model =
 
 viewCards : Model -> Html Msg
 viewCards model =
-  div []
-    [ text (toString model.cards) ]
+  let
+    cardTextTimes =
+      List.map
+        (\cardTimeIndex ->
+          latestBefore
+            cardTimeIndex.time
+            model.textTimes
+            ( Maybe.withDefault
+              (TextTime "" 0) <|
+              List.head model.textTimes
+            )
+        )
+        model.cards
+    cardTimeTranslations =
+      List.map
+        (\cardTimeIndex ->
+          latestBefore
+            cardTimeIndex.time
+            model.timeTranslations
+            ( Maybe.withDefault
+              (TimeTranslation 0 [])
+              (List.head model.timeTranslations)
+            )
+        )
+        model.cards
+    cards =
+      List.map2 (,) cardTextTimes cardTimeTranslations
+  in
+    div []
+      [ div [] [ text (toString model.cards) ]
+      , div [] <|
+        List.map
+          (\card ->
+            let
+              cardText =
+                (Tuple.first card).text
+              cardTranslationWord =
+                ( Maybe.withDefault
+                  (WordTranslation "" Nothing)
+                  ( List.head
+                    (Tuple.second card).translations
+                  )
+                ).word
+            in
+              div []
+                [ div [] [text cardText]
+                , div [] [text cardTranslationWord] ]
+          )
+          cards
+      ]
 
-latestBefore : Float -> List { time : Float } -> { time : Float } -> { time : Float }
+{-
+latestBefore : Float -> List TextTime -> TextTime -> TextTime
+latestBefore time blocks init =
+  let
+    blocksBefore =
+      List.filter
+        (\block -> block.time <= time)
+        blocks
+    latestBlock =
+      Maybe.withDefault init <|
+        List.head <| List.reverse blocksBefore
+  in
+    latestBlock
+-}
+
 latestBefore time blocks init =
   let
     blocksBefore =
