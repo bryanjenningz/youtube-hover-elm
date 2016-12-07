@@ -12,7 +12,7 @@ main =
     , subscriptions = subscriptions
     }
 
-type Msg = ChangeIndex Int | UpdateYoutubeTime Float
+type Msg = ChangeIndex Int | UpdateYoutubeTime Float | AddCard Float Int
 
 type alias TextTime =
   { text : String
@@ -29,11 +29,18 @@ type alias TimeTranslation =
   , translations : List WordTranslation
   }
 
+-- Time of the video and index of the selected word.
+type alias CardTimeIndex =
+  { time : Float
+  , index : Int
+  }
+
 type alias Model =
   { hoverIndex : Int
   , youtubeTime : Float
   , timeTranslations : List TimeTranslation
   , textTimes : List TextTime
+  , cards : List CardTimeIndex
   }
 
 type alias Flags =
@@ -43,12 +50,18 @@ type alias Flags =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-  ( Model -1 0 flags.timeTranslations flags.textTimes, Cmd.none )
+  ( Model -1 0 flags.timeTranslations flags.textTimes [], Cmd.none )
 
 view model =
-  div [class "text-center"]
-    [ viewTextTime model
-    , viewTranslatedSubs model
+  div []
+    [ div [ class "col-sm-8" ]
+      [ div [ class "text-center" ]
+        [ viewTextTime model
+        , viewTranslatedSubs model
+        ]
+      ]
+    , div [ class "col-sm-4" ]
+      [ viewCards model ]
     ]
 
 viewTextTime : Model -> Html Msg
@@ -87,6 +100,7 @@ viewTranslatedSubs model =
             span
               [ onMouseEnter (ChangeIndex index)
               , onMouseLeave (ChangeIndex -1)
+              , onClick (AddCard model.youtubeTime index)
               , style <|
                 [ ( "position", "relative" ) ] ++
                 (if model.hoverIndex == index then [ ( "background", "cyan" ) ] else [])
@@ -100,6 +114,24 @@ viewTranslatedSubs model =
               )
         )
         currentSub.translations
+
+viewCards : Model -> Html Msg
+viewCards model =
+  div []
+    [ text (toString model.cards) ]
+
+latestBefore : Float -> List { time : Float } -> { time : Float } -> { time : Float }
+latestBefore time blocks init =
+  let
+    blocksBefore =
+      List.filter
+        (\block -> block.time <= time)
+        blocks
+    latestBlock =
+      Maybe.withDefault init <|
+        List.head <| List.reverse blocksBefore
+  in
+    latestBlock
 
 translationStyle =
   [ ("background", "cyan")
@@ -117,6 +149,9 @@ update msg model =
 
     UpdateYoutubeTime time ->
       ( { model | youtubeTime = time }, Cmd.none )
+
+    AddCard time index ->
+      ( { model | cards = model.cards ++ [ CardTimeIndex time index ] }, Cmd.none )
 
 port youtubeTime : (Float -> msg) -> Sub msg
 
