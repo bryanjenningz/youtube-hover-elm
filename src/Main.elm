@@ -47,16 +47,21 @@ init flags =
 
 view model =
   div [class "text-center"]
-    [ h4 [] [text (getCurrentTextTime model.textTimes model.youtubeTime).text]
+    [ viewTextTime model
     , viewTranslatedSubs model
     ]
 
-getCurrentTextTime : List TextTime -> Float -> TextTime
-getCurrentTextTime subs time =
-  List.foldl
-    (\sub result -> if sub.time > time then result else sub)
-    (Maybe.withDefault (TextTime "" 0) <| List.head subs)
-    subs
+viewTextTime : Model -> Html Msg
+viewTextTime model =
+  let
+    currentTextTime =
+      List.foldl
+      (\textTime result -> if textTime.time <= model.youtubeTime then textTime else result)
+      (Maybe.withDefault (TextTime "" 0) <| List.head model.textTimes)
+      model.textTimes
+  in
+    h4 []
+      [ text currentTextTime.text ]
 
 viewTranslatedSubs : Model -> Html Msg
 viewTranslatedSubs model =
